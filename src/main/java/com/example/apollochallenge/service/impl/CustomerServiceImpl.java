@@ -49,14 +49,11 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public List<CustomerResponse> getCustomerByTags(List<Integer> tagsID) {
-        List<Tag> tags = tagRepository.findAllById(tagsID);
-        tags.forEach(System.out::println);
-//        List<Customer> customers = customerRepository.findCustomerByTags(tags);
-        return null;
-//            customers
-//            .stream()
-//            .map(customer -> modelMapper.map(customer, CustomerResponse.class))
-//            .collect(Collectors.toList());
+        List<Customer> customers = customerRepository.findCustomersByTagsIn(tagsID);
+        return customers
+            .stream()
+            .map(customer -> modelMapper.map(customer, CustomerResponse.class))
+            .collect(Collectors.toList());
     }
 
     @Override
