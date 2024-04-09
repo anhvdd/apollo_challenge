@@ -9,7 +9,6 @@ import com.example.apollochallenge.repository.TagRepository;
 import com.example.apollochallenge.service.CustomerService;
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +23,6 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
     private final TagRepository tagRepository;
-    private final ModelMapper modelMapper;
 
     @Override
     public Page<CustomerResponse> getAll(@Nullable List<String> keys, Pageable pageable) {
@@ -32,14 +30,14 @@ public class CustomerServiceImpl implements CustomerService {
             Page<Customer> customersPage = customerRepository.findAll(pageable);
             List<CustomerResponse> response = customersPage.getContent().stream()
                 .filter(customer -> !customer.isDelete())
-                .map(customer -> modelMapper.map(customer, CustomerResponse.class))
+                .map(CustomerResponse::fromEntity)
                 .toList();
             return new PageImpl<>(response, pageable, customersPage.getTotalElements());
         }
         Page<Customer> customers = customerRepository.findCustomersByTagsTitleInOrNameIn(keys, keys, pageable);
         List<CustomerResponse> response = customers
             .stream()
-            .map(customer -> modelMapper.map(customer, CustomerResponse.class))
+            .map(CustomerResponse::fromEntity)
             .toList();
         return new PageImpl<>(response, pageable, response.size());
     }
@@ -49,7 +47,7 @@ public class CustomerServiceImpl implements CustomerService {
         Customer customer = customerRepository.findById(id)
             .filter(c -> !c.isDelete())
             .orElseThrow(() -> new Exception("Customer not found"));
-        return modelMapper.map(customer, CustomerResponse.class);
+        return CustomerResponse.fromEntity(customer);
     }
 
     @Override
@@ -66,7 +64,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setName(request.getName());
         customer.setTags(tags);
         customerRepository.save(customer);
-        return modelMapper.map(customer, CustomerResponse.class);
+        return CustomerResponse.fromEntity(customer);
     }
 
     @Override
@@ -78,7 +76,7 @@ public class CustomerServiceImpl implements CustomerService {
         customer.setTags(tags);
 
         customerRepository.save(customer);
-        return modelMapper.map(customer, CustomerResponse.class);
+        return CustomerResponse.fromEntity(customer);
     }
 
     @Override
