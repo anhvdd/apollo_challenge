@@ -31,6 +31,7 @@ public class TagServiceImpl implements TagService {
     @Override
     public TagResponse getTag(Integer id) throws Exception {
         Tag tag = tagRepository.findById(id)
+            .filter(t -> !t.isDelete())
             .orElseThrow(() -> new Exception("Tag not found"));
         return modelMapper.map(tag, TagResponse.class);
     }
