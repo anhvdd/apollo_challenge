@@ -1,15 +1,22 @@
 package com.example.apollochallenge.dto.response;
 
-import com.example.apollochallenge.entity.Tag;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
 public class CustomerResponse {
-    private Integer id;
+    private String id;
+
     private String name;
-    @JsonIgnoreProperties("customers")
-    private List<Tag> tags;
+
+    private List<TagResponse> tags;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String createdTime;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String updatedTime;
+
 }

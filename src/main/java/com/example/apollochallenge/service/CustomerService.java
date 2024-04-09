@@ -2,16 +2,16 @@ package com.example.apollochallenge.service;
 
 import com.example.apollochallenge.dto.request.CustomerRequest;
 import com.example.apollochallenge.dto.response.CustomerResponse;
+import jakarta.annotation.Nullable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface CustomerService {
-    List<CustomerResponse> getAll();
+    Page<CustomerResponse> getAll(@Nullable List<String> keys, Pageable pageable);
 
     CustomerResponse getCustomer(Integer id) throws Exception;
-
-    List<CustomerResponse> getCustomerByName(String name);
-    List<CustomerResponse> getCustomerByTags(List<Integer> tagsID);
 
     CustomerResponse createCustomer(CustomerRequest request);
 

@@ -5,6 +5,8 @@ import com.example.apollochallenge.dto.response.CustomerResponse;
 import com.example.apollochallenge.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,23 +28,13 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    public ResponseEntity<List<CustomerResponse>> getAll() {
-        return ResponseEntity.ok().body(customerService.getAll());
+    public ResponseEntity<Page<CustomerResponse>> getAll(@RequestParam(value = "keys", required = false) List<String> keys, Pageable pageable) {
+        return ResponseEntity.ok().body(customerService.getAll(keys, pageable));
     }
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<CustomerResponse> getOne(@PathVariable Integer id) throws Exception {
         return ResponseEntity.status(200).body(customerService.getCustomer(id));
-    }
-
-    @GetMapping(value = "/findByName")
-    public ResponseEntity<List<CustomerResponse>> findByName(@RequestParam(value = "name") String name) {
-        return ResponseEntity.status(200).body(customerService.getCustomerByName(name));
-    }
-
-    @GetMapping(value = "/findByTag")
-    public ResponseEntity<List<CustomerResponse>> findByTag(@RequestParam(value = "tagsID") List<Integer> tagsID) {
-        return ResponseEntity.status(200).body(customerService.getCustomerByTags(tagsID));
     }
 
     @PostMapping

@@ -9,5 +9,5 @@ import java.util.List;
 public class CustomerRequest {
     @NotBlank
     private String name;
-    private List<Integer> tagsID;
+    private List<String> tags;
 }
