@@ -1,6 +1,7 @@
 package com.example.apollochallenge.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
@@ -15,7 +16,7 @@ import java.util.List;
 @Table(name = "customer")
 @Data
 public class Customer extends BaseEntity {
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @ManyToMany
@@ -24,5 +25,6 @@ public class Customer extends BaseEntity {
             joinColumns = { @JoinColumn(name = "customer_id") },
             inverseJoinColumns = { @JoinColumn(name = "tag_id") }
     )
+    @JsonIgnoreProperties("tags")
     private List<Tag> tags;
 }
