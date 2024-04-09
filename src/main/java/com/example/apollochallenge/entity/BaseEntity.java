@@ -19,12 +19,12 @@ import java.time.LocalDateTime;
 @SQLRestriction("isDelete = false")
 public abstract class BaseEntity implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
     private Integer id;
 
     @CreationTimestamp
-    @Column(name = "createTime")
+    @Column(name = "createdTime")
     private LocalDateTime createdTime;
 
     @UpdateTimestamp
