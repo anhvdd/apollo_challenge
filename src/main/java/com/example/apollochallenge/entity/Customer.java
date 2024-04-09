@@ -16,7 +16,7 @@ import java.util.List;
 @Table(name = "customer")
 @Data
 public class Customer extends BaseEntity {
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @ManyToMany

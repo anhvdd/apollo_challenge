@@ -7,6 +7,7 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,17 +35,17 @@ public class CustomerController {
 
     @GetMapping(value = "/{id}")
     public ResponseEntity<CustomerResponse> getOne(@PathVariable Integer id) throws Exception {
-        return ResponseEntity.status(200).body(customerService.getCustomer(id));
+        return ResponseEntity.status(HttpStatus.OK).body(customerService.getCustomer(id));
     }
 
     @PostMapping
     public ResponseEntity<CustomerResponse> create(@RequestBody @Valid CustomerRequest request) {
-        return ResponseEntity.status(201).body(customerService.createCustomer(request));
+        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.createCustomer(request));
     }
 
     @PutMapping(value = "/{id}")
     public ResponseEntity<CustomerResponse> update(@PathVariable Integer id, @RequestBody @Valid CustomerRequest request) throws Exception {
-        return ResponseEntity.status(200).body(customerService.updateCustomer(id, request));
+        return ResponseEntity.status(HttpStatus.OK).body(customerService.updateCustomer(id, request));
     }
 
     @DeleteMapping(value = "/{id}")

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
@@ -27,10 +28,8 @@ public class CustomerResponse {
         customerResponse.name = customer.getName();
         customerResponse.createdTime = customer.getCreatedTime();
         customerResponse.updatedTime = customer.getUpdatedTime();
-        List<TagResponse> tagResponses = customerResponse.getTags();
-        customer.getTags().forEach(tag -> {
-            tagResponses.add(TagResponse.fromEntity(tag));
-        });
+        List<TagResponse> tagResponses = new ArrayList<>();
+        customer.getTags().forEach(tag -> tagResponses.add(TagResponse.fromEntity(tag)));
         customerResponse.tags = tagResponses;
         return customerResponse;
     }
