@@ -57,9 +57,10 @@ public class CustomerServiceImpl implements CustomerService {
         request.getTags().forEach(title -> {
             Tag tag = tagRepository.findByTitle(title);
             if( tag == null) {
-                tagRepository.save(new Tag(title));
-            }
-             tags.add(tag);
+                Tag newTag = new Tag(title);
+                tagRepository.save(newTag);
+                tags.add(newTag);
+            } else tags.add(tag);
         });
         customer.setName(request.getName());
         customer.setTags(tags);
@@ -71,10 +72,17 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse updateCustomer(Integer id, CustomerRequest request) throws Exception {
         Customer customer = customerRepository.findById(id)
             .orElseThrow(() -> new Exception("Customer not found"));
-        List<Tag> tags = tagRepository.findTagByTitleIn(request.getTags());
+        List<Tag> tags = new ArrayList<>();
+        request.getTags().forEach(title -> {
+            Tag tag = tagRepository.findByTitle(title);
+            if( tag == null) {
+                Tag newTag = new Tag(title);
+                tagRepository.save(newTag);
+                tags.add(newTag);
+            } else tags.add(tag);
+        });
         customer.setName(request.getName());
         customer.setTags(tags);
-
         customerRepository.save(customer);
         return CustomerResponse.fromEntity(customer);
     }
