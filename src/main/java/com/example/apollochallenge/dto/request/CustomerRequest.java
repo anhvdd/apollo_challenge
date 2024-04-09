@@ -1,6 +1,7 @@
 package com.example.apollochallenge.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.List;
@@ -9,5 +10,6 @@ import java.util.List;
 public class CustomerRequest {
     @NotBlank
     private String name;
+    @NotNull
     private List<String> tags;
 }

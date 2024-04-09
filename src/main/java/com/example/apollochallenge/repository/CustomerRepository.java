@@ -10,5 +10,8 @@ import java.util.List;
 
 @Repository
 public interface CustomerRepository extends JpaRepository<Customer, Integer> {
-    Page<Customer> findCustomersByTagsTitleInOrNameIn(List<String> tags, List<String> name, Pageable pageable);
+    Page<Customer> findCustomersByTagsTitleInOrNameInAndIsDeleteIs(List<String> tags, List<String> name, boolean deleted, Pageable pageable);
+    Customer findByName(String name);
+
+    Page<Customer> findAllByIsDeleteIs(boolean deleted, Pageable pageable);
 }

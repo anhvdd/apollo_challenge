@@ -4,13 +4,13 @@ import com.example.apollochallenge.dto.request.CustomerRequest;
 import com.example.apollochallenge.dto.response.CustomerResponse;
 import com.example.apollochallenge.entity.Customer;
 import com.example.apollochallenge.entity.Tag;
+import com.example.apollochallenge.exception.ApplicationCustomException;
 import com.example.apollochallenge.repository.CustomerRepository;
 import com.example.apollochallenge.repository.TagRepository;
 import com.example.apollochallenge.service.CustomerService;
 import jakarta.annotation.Nullable;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -27,19 +27,12 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public Page<CustomerResponse> getAll(@Nullable List<String> keys, Pageable pageable) {
         if (keys == null || keys.isEmpty()) {
-            Page<Customer> customersPage = customerRepository.findAll(pageable);
-            List<CustomerResponse> response = customersPage.getContent().stream()
-                .filter(customer -> !customer.isDelete())
-                .map(CustomerResponse::fromEntity)
-                .toList();
-            return new PageImpl<>(response, pageable, customersPage.getTotalElements());
+            return customerRepository.findAllByIsDeleteIs(false, pageable)
+                .map(CustomerResponse::fromEntity);
+        } else {
+            return customerRepository.findCustomersByTagsTitleInOrNameInAndIsDeleteIs(keys, keys, false, pageable)
+                .map(CustomerResponse::fromEntity);
         }
-        Page<Customer> customers = customerRepository.findCustomersByTagsTitleInOrNameIn(keys, keys, pageable);
-        List<CustomerResponse> response = customers
-            .stream()
-            .map(CustomerResponse::fromEntity)
-            .toList();
-        return new PageImpl<>(response, pageable, response.size());
     }
 
     @Override
@@ -62,6 +55,9 @@ public class CustomerServiceImpl implements CustomerService {
                 tags.add(newTag);
             } else tags.add(tag);
         });
+        if (customerRepository.findByName(request.getName()) != null) {
+            throw new ApplicationCustomException("Customer already exists");
+        }
         customer.setName(request.getName());
         customer.setTags(tags);
         customerRepository.save(customer);
@@ -71,7 +67,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     public CustomerResponse updateCustomer(Integer id, CustomerRequest request) throws Exception {
         Customer customer = customerRepository.findById(id)
-            .orElseThrow(() -> new Exception("Customer not found"));
+            .orElseThrow(() -> new ApplicationCustomException("Customer not found"));
         List<Tag> tags = new ArrayList<>();
         request.getTags().forEach(title -> {
             Tag tag = tagRepository.findByTitle(title);
@@ -81,6 +77,9 @@ public class CustomerServiceImpl implements CustomerService {
                 tags.add(newTag);
             } else tags.add(tag);
         });
+        if (customerRepository.findByName(request.getName()) != null && !customer.getName().equals(request.getName())) {
+            throw new ApplicationCustomException("Customer name already exists");
+        }
         customer.setName(request.getName());
         customer.setTags(tags);
         customerRepository.save(customer);
