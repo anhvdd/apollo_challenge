@@ -28,6 +28,14 @@ public class CustomerServiceImpl implements CustomerService {
     private final CustomerRepository customerRepository;
     private final TagRepository tagRepository;
 
+
+    /**
+     * Get all customers with the specified keys and pageable information.
+     *
+     * @param  keys      a list of keys to filter the customers
+     * @param  pageable  pagination information for retrieving customers
+     * @return           a page of customer responses
+     */
     @Override
     public Page<CustomerResponse> getAll(@Nullable List<String> keys, Pageable pageable) {
         if (keys == null || keys.isEmpty()) {
@@ -39,6 +47,12 @@ public class CustomerServiceImpl implements CustomerService {
         }
     }
 
+    /**
+     * Retrieves a customer by their ID.
+     *
+     * @param  id    the ID of the customer to retrieve
+     * @return       a response containing the customer details
+     */
     @Override
     public CustomerResponse getCustomerById(Integer id) {
         Customer customer = customerRepository.findById(id)
@@ -47,6 +61,12 @@ public class CustomerServiceImpl implements CustomerService {
         return CustomerResponse.fromEntity(customer);
     }
 
+    /**
+     * Creates a new customer based on the provided request.
+     *
+     * @param  request   the customer request object
+     * @return           the response containing the newly created customer
+     */
     @Override
     public CustomerResponse createCustomer(CustomerRequest request) {
         Customer customer = handleCustomerRequest(null, request);
@@ -57,6 +77,13 @@ public class CustomerServiceImpl implements CustomerService {
         return CustomerResponse.fromEntity(customer);
     }
 
+    /**
+     * Updates a customer based on the provided id and request.
+     *
+     * @param  id       the id of the customer to be updated
+     * @param  request  the request containing the updated customer information
+     * @return          the response containing the updated customer information
+     */
     @Override
     public CustomerResponse updateCustomer(Integer id, CustomerRequest request) {
         Customer customer = handleCustomerRequest(id, request);
@@ -67,6 +94,12 @@ public class CustomerServiceImpl implements CustomerService {
         return CustomerResponse.fromEntity(customer);
     }
 
+    /**
+     * Deletes a customer by setting the delete flag to true in the database.
+     *
+     * @param  id  the ID of the customer to delete
+     * @return     true if the customer is successfully deleted, false otherwise
+     */
     @Override
     public Boolean deleteCustomer(Integer id) {
         Customer customer = customerRepository.findById(id)
@@ -76,6 +109,13 @@ public class CustomerServiceImpl implements CustomerService {
         return result.isDelete();
     }
 
+    /**
+     * Handles a customer request by processing the given ID and request data.
+     *
+     * @param  id         the ID of the customer (nullable)
+     * @param  request    the customer request data
+     * @return            the updated customer object
+     */
     private Customer handleCustomerRequest(@Nullable Integer id, CustomerRequest request) {
         Customer customer = new Customer();
         if (id != null) {
