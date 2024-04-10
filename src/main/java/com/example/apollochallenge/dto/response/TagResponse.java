@@ -6,16 +6,18 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+import static com.example.apollochallenge.constant.Constants.DATE_TIME_FORMAT;
+
 @Data
 public class TagResponse {
     private Integer id;
 
     private String title;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DATE_TIME_FORMAT)
     private LocalDateTime createdTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DATE_TIME_FORMAT)
     private LocalDateTime updatedTime;
 
     public static TagResponse fromEntity(Tag tag) {

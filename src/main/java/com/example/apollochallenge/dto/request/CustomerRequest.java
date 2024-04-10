@@ -1,5 +1,6 @@
 package com.example.apollochallenge.dto.request;
 
+import com.example.apollochallenge.constant.Constants;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -9,8 +10,8 @@ import java.util.List;
 
 @Data
 public class CustomerRequest {
-    @NotBlank(message = "Name must not be empty")
-    @Size(max = 20, message = "Name must be less than 20 characters")
+    @NotBlank(message = Constants.EMPTY_INPUT_NAME)
+    @Size(max = 20, message = Constants.INPUT_NAME_LIMITATION)
     private String name;
     @NotNull
     private List<String> tags;

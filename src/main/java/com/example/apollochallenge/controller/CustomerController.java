@@ -1,6 +1,7 @@
 package com.example.apollochallenge.controller;
 
 import com.example.apollochallenge.dto.request.CustomerRequest;
+import com.example.apollochallenge.dto.response.BaseResponse;
 import com.example.apollochallenge.dto.response.CustomerResponse;
 import com.example.apollochallenge.service.CustomerService;
 import jakarta.validation.Valid;
@@ -22,8 +23,10 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+import static com.example.apollochallenge.constant.Constants.BASE_URL_CUSTOMERS;
+
 @RestController
-@RequestMapping(value = "/api/v1/customers")
+@RequestMapping(value = BASE_URL_CUSTOMERS)
 @AllArgsConstructor
 @Validated
 public class CustomerController {
@@ -31,27 +34,32 @@ public class CustomerController {
     private final CustomerService customerService;
 
     @GetMapping
-    public ResponseEntity<Page<CustomerResponse>> getAll(@RequestParam(value = "keys", required = false) List<String> keys, Pageable pageable) {
-        return ResponseEntity.ok().body(customerService.getAll(keys, pageable));
+    public ResponseEntity<BaseResponse<Page<CustomerResponse>>> getAll(@RequestParam(value = "keys", required = false) List<String> keys, Pageable pageable) {
+        BaseResponse<Page<CustomerResponse>> response = BaseResponse.toSuccess(customerService.getAll(keys, pageable));
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<CustomerResponse> getOne(@PathVariable Integer id) throws Exception {
-        return ResponseEntity.status(HttpStatus.OK).body(customerService.getCustomer(id));
+    public ResponseEntity<BaseResponse<CustomerResponse>> getOne(@PathVariable Integer id) {
+        BaseResponse<CustomerResponse> response = BaseResponse.toSuccess(customerService.getCustomerById(id));
+        return ResponseEntity.ok().body(response);
     }
 
     @PostMapping
-    public ResponseEntity<CustomerResponse> create(@RequestBody @Valid CustomerRequest request) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(customerService.createCustomer(request));
+    public ResponseEntity<BaseResponse<CustomerResponse>> create(@RequestBody @Valid CustomerRequest request) {
+        BaseResponse<CustomerResponse> response = BaseResponse.toSuccess(customerService.createCustomer(request));
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping(value = "/{id}")
-    public ResponseEntity<CustomerResponse> update(@PathVariable Integer id, @RequestBody @Valid CustomerRequest request) throws Exception {
-        return ResponseEntity.status(HttpStatus.OK).body(customerService.updateCustomer(id, request));
+    public ResponseEntity<BaseResponse<CustomerResponse>> update(@PathVariable Integer id, @RequestBody @Valid CustomerRequest request) throws Exception {
+        BaseResponse<CustomerResponse> response = BaseResponse.toSuccess(customerService.updateCustomer(id, request));
+        return ResponseEntity.ok().body(response);
     }
 
     @DeleteMapping(value = "/{id}")
-    public void delete(@PathVariable Integer id) throws Exception {
-        customerService.deleteCustomer(id);
+    public ResponseEntity<BaseResponse<Boolean>> delete(@PathVariable Integer id) throws Exception {
+        BaseResponse<Boolean> response = BaseResponse.toSuccess(customerService.deleteCustomer(id));
+        return ResponseEntity.ok().body(response);
     }
 }

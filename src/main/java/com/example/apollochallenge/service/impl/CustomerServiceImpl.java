@@ -9,7 +9,7 @@ import com.example.apollochallenge.repository.CustomerRepository;
 import com.example.apollochallenge.repository.TagRepository;
 import com.example.apollochallenge.service.CustomerService;
 import jakarta.annotation.Nullable;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,8 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+import static com.example.apollochallenge.constant.Constants.CUSTOMER_EXISTS;
+import static com.example.apollochallenge.constant.Constants.CUSTOMER_NOT_FOUND;
+
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 @Transactional
 public class CustomerServiceImpl implements CustomerService {
 
@@ -37,10 +40,10 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public CustomerResponse getCustomer(Integer id) throws Exception {
+    public CustomerResponse getCustomerById(Integer id) {
         Customer customer = customerRepository.findById(id)
             .filter(c -> !c.isDelete())
-            .orElseThrow(() -> new Exception("Customer not found"));
+            .orElseThrow(() -> new ApplicationCustomException(CUSTOMER_NOT_FOUND));
         return CustomerResponse.fromEntity(customer);
     }
 
@@ -48,7 +51,7 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse createCustomer(CustomerRequest request) {
         Customer customer = handleCustomerRequest(null, request);
         if (customerRepository.findByName(request.getName()) != null) {
-            throw new ApplicationCustomException("Customer name already exists");
+            throw new ApplicationCustomException(CUSTOMER_EXISTS);
         }
         customerRepository.save(customer);
         return CustomerResponse.fromEntity(customer);
@@ -58,25 +61,26 @@ public class CustomerServiceImpl implements CustomerService {
     public CustomerResponse updateCustomer(Integer id, CustomerRequest request) {
         Customer customer = handleCustomerRequest(id, request);
         if (customerRepository.findByName(request.getName()) != null && !customer.getName().equals(request.getName())) {
-            throw new ApplicationCustomException("Customer name already exists");
+            throw new ApplicationCustomException(CUSTOMER_EXISTS);
         }
         customerRepository.save(customer);
         return CustomerResponse.fromEntity(customer);
     }
 
     @Override
-    public void deleteCustomer(Integer id) throws Exception {
+    public Boolean deleteCustomer(Integer id) {
         Customer customer = customerRepository.findById(id)
-            .orElseThrow(() -> new Exception("Customer not found"));
+            .orElseThrow(() -> new ApplicationCustomException(CUSTOMER_NOT_FOUND));
         customer.setDelete(true);
-        customerRepository.save(customer);
+        Customer result = customerRepository.save(customer);
+        return result.isDelete();
     }
 
     private Customer handleCustomerRequest(@Nullable Integer id, CustomerRequest request) {
         Customer customer = new Customer();
         if (id != null) {
             customer = customerRepository.findById(id)
-                .orElseThrow(() -> new ApplicationCustomException("Customer not found"));
+                .orElseThrow(() -> new ApplicationCustomException(CUSTOMER_NOT_FOUND));
         }
         List<Tag> tags = tagRepository.findTagByTitleIn(request.getTags());
         List<String> tagsTitle = tags.stream().map(Tag::getTitle).toList();
@@ -87,7 +91,6 @@ public class CustomerServiceImpl implements CustomerService {
 
         customer.setTags(tags);
         customer.setName(request.getName());
-
         return customer;
     }
 }
