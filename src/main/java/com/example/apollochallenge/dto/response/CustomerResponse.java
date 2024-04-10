@@ -8,6 +8,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.example.apollochallenge.constant.Constants.DATE_TIME_FORMAT;
+
 @Data
 public class CustomerResponse {
     private Integer id;
@@ -16,10 +18,10 @@ public class CustomerResponse {
 
     private List<TagResponse> tags;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DATE_TIME_FORMAT)
     private LocalDateTime createdTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = DATE_TIME_FORMAT)
     private LocalDateTime updatedTime;
 
     public static CustomerResponse fromEntity(Customer customer) {

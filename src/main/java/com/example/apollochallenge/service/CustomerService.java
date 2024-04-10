@@ -11,12 +11,12 @@ import java.util.List;
 public interface CustomerService {
     Page<CustomerResponse> getAll(@Nullable List<String> keys, Pageable pageable);
 
-    CustomerResponse getCustomer(Integer id) throws Exception;
+    CustomerResponse getCustomerById(Integer id);
 
     CustomerResponse createCustomer(CustomerRequest request);
 
     CustomerResponse updateCustomer(Integer id, CustomerRequest request) throws Exception;
 
-    void deleteCustomer(Integer id) throws Exception;
+    Boolean deleteCustomer(Integer id) throws Exception;
 
 }
