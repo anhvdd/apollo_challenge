@@ -13,12 +13,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @AllArgsConstructor
+@Transactional
 public class CustomerServiceImpl implements CustomerService {
 
     private final CustomerRepository customerRepository;
@@ -45,43 +46,20 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public CustomerResponse createCustomer(CustomerRequest request) {
-        Customer customer = new Customer();
-        List<Tag> tags = new ArrayList<>();
-        request.getTags().forEach(title -> {
-            Tag tag = tagRepository.findByTitle(title);
-            if( tag == null) {
-                Tag newTag = new Tag(title);
-                tagRepository.save(newTag);
-                tags.add(newTag);
-            } else tags.add(tag);
-        });
+        Customer customer = handleCustomerRequest(null, request);
         if (customerRepository.findByName(request.getName()) != null) {
-            throw new ApplicationCustomException("Customer already exists");
+            throw new ApplicationCustomException("Customer name already exists");
         }
-        customer.setName(request.getName());
-        customer.setTags(tags);
         customerRepository.save(customer);
         return CustomerResponse.fromEntity(customer);
     }
 
     @Override
-    public CustomerResponse updateCustomer(Integer id, CustomerRequest request) throws Exception {
-        Customer customer = customerRepository.findById(id)
-            .orElseThrow(() -> new ApplicationCustomException("Customer not found"));
-        List<Tag> tags = new ArrayList<>();
-        request.getTags().forEach(title -> {
-            Tag tag = tagRepository.findByTitle(title);
-            if( tag == null) {
-                Tag newTag = new Tag(title);
-                tagRepository.save(newTag);
-                tags.add(newTag);
-            } else tags.add(tag);
-        });
+    public CustomerResponse updateCustomer(Integer id, CustomerRequest request) {
+        Customer customer = handleCustomerRequest(id, request);
         if (customerRepository.findByName(request.getName()) != null && !customer.getName().equals(request.getName())) {
             throw new ApplicationCustomException("Customer name already exists");
         }
-        customer.setName(request.getName());
-        customer.setTags(tags);
         customerRepository.save(customer);
         return CustomerResponse.fromEntity(customer);
     }
@@ -92,5 +70,24 @@ public class CustomerServiceImpl implements CustomerService {
             .orElseThrow(() -> new Exception("Customer not found"));
         customer.setDelete(true);
         customerRepository.save(customer);
+    }
+
+    private Customer handleCustomerRequest(@Nullable Integer id, CustomerRequest request) {
+        Customer customer = new Customer();
+        if (id != null) {
+            customer = customerRepository.findById(id)
+                .orElseThrow(() -> new ApplicationCustomException("Customer not found"));
+        }
+        List<Tag> tags = tagRepository.findTagByTitleIn(request.getTags());
+        List<String> tagsTitle = tags.stream().map(Tag::getTitle).toList();
+        List<Tag> tagsNotExists = request.getTags().stream()
+            .filter(title -> !tagsTitle.contains(title))
+            .map(Tag::new).toList();
+        tags.addAll(tagsNotExists);
+
+        customer.setTags(tags);
+        customer.setName(request.getName());
+
+        return customer;
     }
 }
